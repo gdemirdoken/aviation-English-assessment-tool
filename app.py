@@ -1,7 +1,7 @@
+import whisper
 import streamlit as st
 import openai
 import tempfile
-import whisper
 import os
 
 # Load Whisper model
