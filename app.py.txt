@@ -8,7 +8,8 @@ import os
 model = whisper.load_model("base")  # Options: tiny, base, small, medium, large
 
 # Set OpenAI API Key (from environment variable for security)
-openai.api_key = os.getenv("OpenAI API Key")
+import os
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # App UI
 st.title("✈️ Aviation English Speaking Tutor")
