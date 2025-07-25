@@ -1,10 +1,12 @@
-import whisper
-import streamlit as st
-import tempfile
-from openai import OpenAI
+import openai
+import os
 
-# Initialize OpenAI client with API key
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+response = openai.ChatCompletion.create(
+    model="gpt-3.5-turbo",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
 
 st.title("✈️ Aviation English Speaking Tutor")
 st.write("Practice Aviation English speaking skills with AI feedback based on ICAO standards.")
