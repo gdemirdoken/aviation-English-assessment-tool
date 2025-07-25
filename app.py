@@ -3,14 +3,12 @@ import whisper
 import openai
 import tempfile
 import os
-from openai import OpenAI
 
 # Load Whisper model
 model = whisper.load_model("base")  # Options: tiny, base, small, medium, large
 
 # Set OpenAI API Key from environment variable
 openai.api_key = os.getenv("OPENAI_API_KEY")
-client = OpenAI(api_key=openai.api_key)
 
 # Streamlit UI
 st.title("✈️ Aviation English Speaking Tutor")
@@ -53,7 +51,7 @@ if audio_file is not None:
     """
 
     # Get feedback from GPT
-    response = client.chat.completions.create(
+    response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "You are an ICAO Aviation English evaluator."},
@@ -61,7 +59,7 @@ if audio_file is not None:
         ]
     )
 
-    feedback = response.choices[0].message.content
+    feedback = response['choices'][0]['message']['content']
 
     st.write("### AI Feedback:")
     st.write(feedback)
