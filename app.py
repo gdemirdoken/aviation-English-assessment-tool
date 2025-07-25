@@ -18,7 +18,7 @@ st.write(f"### Scenario: {prompt_text}")
 
 # Audio upload
 audio_file = st.file_uploader("Upload your voice (MP3/WAV)", type=["mp3", "wav"])
-
+model = whisper.load_model("base")
 if audio_file is not None:
     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio:
         temp_audio.write(audio_file.read())
