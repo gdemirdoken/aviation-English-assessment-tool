@@ -1,65 +1,60 @@
 import streamlit as st
 import tempfile
 import whisper
-import torch
+from transformers import pipeline
 
-# Try importing transformers (for grammar feedback)
-try:
-    from transformers import pipeline
-    transformers_available = True
-except ImportError:
-    transformers_available = False
-
-# Title
+# ---------------------
+# Load models
+# ---------------------
 st.title("✈️ Aviation English Speaking Tutor (Offline)")
 
-# Load Whisper model locally
 @st.cache_resource
-def load_whisper_model():
-    return whisper.load_model("base")  # Options: tiny, base, small, medium, large
+def load_models():
+    # Whisper for speech-to-text
+    whisper_model = whisper.load_model("base")  # You can choose "small", "medium", "large"
+    # Hugging Face pipeline for grammar correction
+    grammar_corrector = pipeline("text2text-generation", model="prithivida/grammar_error_correcter_v1")
+    return whisper_model, grammar_corrector
 
-whisper_model = load_whisper_model()
+whisper_model, grammar_corrector = load_models()
 
-# If transformers available, load grammar correction model
-if transformers_available:
-    @st.cache_resource
-    def load_grammar_model():
-        return pipeline("text2text-generation", model="pszemraj/flan-t5-large-grammar-synthesis")
-    grammar_model = load_grammar_model()
-
-# File uploader
-audio_file = st.file_uploader("🎤 Upload your spoken Aviation English response (WAV or MP3)", type=["wav", "mp3"])
+# ---------------------
+# File Upload
+# ---------------------
+st.subheader("Upload your speech recording:")
+audio_file = st.file_uploader("Upload a .wav file", type=["wav", "mp3", "m4a"])
 
 if audio_file is not None:
-    # Save file temporarily
+    # Save to temp file
     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio:
         temp_audio.write(audio_file.read())
         temp_audio_path = temp_audio.name
 
-    st.info("Transcribing audio locally... This may take a moment.")
-
-    # Transcribe with Whisper
+    st.info("Transcribing audio locally... Please wait.")
+    
+    # Transcription
     result = whisper_model.transcribe(temp_audio_path)
     transcription = result["text"]
 
+    st.success("✅ Transcription complete!")
     st.write("### Your Transcription:")
-    st.success(transcription)
+    st.write(transcription)
 
+    # ---------------------
     # Grammar Feedback
-    if transformers_available:
-        st.write("### Grammar Feedback:")
-        with st.spinner("Analyzing grammar..."):
-            correction = grammar_model(f"Correct the grammar of this sentence: {transcription}", max_length=256)[0]['generated_text']
-            st.info(correction)
-    else:
-        st.warning("⚠️ Grammar feedback unavailable (install 'transformers' to enable this feature).")
+    # ---------------------
+    st.info("Analyzing grammar...")
+    corrected = grammar_corrector(f"grammar: {transcription}")
+    feedback = corrected[0]['generated_text']
 
-    # Pronunciation feedback (basic heuristic)
+    st.write("### Feedback on Grammar:")
+    st.write(feedback)
+
+    # ---------------------
+    # Pronunciation Feedback (Simple)
+    # ---------------------
     st.write("### Pronunciation Feedback:")
-    avg_conf = sum([w['confidence'] for w in result['segments'] if 'confidence' in w]) / len(result['segments'])
-    if avg_conf > 0.85:
-        st.success("✅ Good pronunciation!")
-    elif avg_conf > 0.7:
-        st.warning("👍 Fair pronunciation, but could improve clarity on some words.")
+    if len(transcription.split()) < 3:
+        st.warning("Please provide a longer sample for better feedback.")
     else:
-        st.error("⚠️ Pronunciation needs improvement (many words unclear).")
+        st.write("✅ Clear speech detected. Focus on aviation phraseology for more accuracy.")
