@@ -2,6 +2,7 @@ import streamlit as st
 import tempfile
 import os
 from openai import OpenAI
+import whisper
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
