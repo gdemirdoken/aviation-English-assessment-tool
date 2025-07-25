@@ -1,6 +1,6 @@
+import whisper
 import streamlit as st
-import os
-from openai import OpenAI
+import tempfile
 
 # Initialize OpenAI client with API key
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -18,24 +18,19 @@ st.write(f"### Scenario: {prompt_text}")
 
 # Audio upload
 audio_file = st.file_uploader("Upload your voice (MP3/WAV)", type=["mp3", "wav"])
-if audio_file is not None:
-    with open("temp_audio_file", "wb") as f:
-        f.write(audio_file.read())
-    st.info("Processing your speech...")
 
-    # Transcription using OpenAI Whisper API
-    try:
-        with open("temp_audio_file", "rb") as audio:
-            transcription_response = client.audio.transcriptions.create(
-                model="whisper-1",
-                file=audio
-            )
-        transcription = transcription_response.text
-        st.write("### Your Transcription:")
-        st.write(transcription)
-    except Exception as e:
-        st.error(f"Error during transcription: {e}")
-        st.stop()
+if audio_file is not None:
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio:
+        temp_audio.write(audio_file.read())
+        temp_audio_path = temp_audio.name
+
+    st.info("Transcribing audio locally... This may take a moment.")
+
+    result = model.transcribe(temp_audio_path)
+    transcription = result["text"]
+
+    st.write("### Your Transcription:")
+    st.write(transcription)
 
     # Generate feedback from GPT
     gpt_prompt = f"""
