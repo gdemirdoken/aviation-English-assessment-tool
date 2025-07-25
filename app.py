@@ -37,7 +37,7 @@ if audio_file is not None:
     # ✅ Use OpenAI Speech-to-Text API (Whisper hosted by OpenAI)
     with open(temp_audio_path, "rb") as audio:
         transcription_response = client.audio.transcriptions.create(
-            model="gpt-4o-mini-transcribe",  # OpenAI's fast transcription model
+            model="whisper-1",  # OpenAI's fast transcription model
             file=audio
         )
 
