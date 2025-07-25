@@ -5,7 +5,7 @@ import tempfile
 import os
 
 # Load Whisper model
-model = whisper.load_model("base")  # Options: tiny, base, small, medium, large
+model = whisper.load_model("base")  # Options: tiny, base, small, medium, large
 
 # Set OpenAI API Key (from environment variable for security)
 import os
