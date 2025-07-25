@@ -1,12 +1,7 @@
-import openai
+from openai import OpenAI
 import os
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
-response = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo",
-    messages=[{"role": "user", "content": "Hello!"}]
-)
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 st.title("✈️ Aviation English Speaking Tutor")
 st.write("Practice Aviation English speaking skills with AI feedback based on ICAO standards.")
@@ -46,14 +41,9 @@ if audio_file is not None:
 
     try:
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are an expert aviation English evaluator."},
-                {"role": "user", "content": gpt_prompt}
-            ],
-            temperature=0.7,
-            max_tokens=500
-        )
+    model="gpt-3.5-turbo",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
         feedback = response.choices[0].message.content
         st.write("### AI Feedback:")
         st.write(feedback)
