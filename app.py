@@ -49,15 +49,19 @@ if audio_file is not None:
     """
 
     # Call OpenAI Chat API
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are an ICAO Aviation English evaluator."},
-            {"role": "user", "content": gpt_prompt}
-        ]
-    )
+from openai import OpenAI
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-    feedback = response['choices'][0]['message']['content']
+response = client.chat.completions.create(
+    model="gpt-3.5-turbo",
+    messages=[
+        {"role": "system", "content": "You are an ICAO Aviation English evaluator."},
+        {"role": "user", "content": gpt_prompt}
+    ]
+)
+
+feedback = response.choices[0].message.content
+
 
     st.write("### AI Feedback:")
     st.write(feedback)
