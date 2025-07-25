@@ -1,5 +1,5 @@
-import streamlit as st
 import whisper
+import streamlit as st
 import tempfile
 
 # Initialize OpenAI client with API key
