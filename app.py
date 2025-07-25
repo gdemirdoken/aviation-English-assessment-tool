@@ -1,7 +1,7 @@
 import streamlit as st
-import openai
-import tempfile   # <-- Add this line
+import tempfile
 import os
+from openai import OpenAI
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
