@@ -1,3 +1,7 @@
 streamlit
 openai>=1.2.0
 openai-whisper
+transformers
+sentencepiece
+torch
+soundfile
