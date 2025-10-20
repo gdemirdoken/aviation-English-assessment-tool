@@ -1,8 +1,6 @@
 import streamlit as st
 import io
 
-openai.api_key = "YOUR_OPENAI_API_KEY"
-
 st.title("🛫 ICAO English Proficiency Assessment Tool")
 st.write("Upload a pilot readback recording to assess it against ICAO Language Proficiency Requirements.")
 
@@ -54,4 +52,5 @@ if audio_file is not None:
 
         st.subheader("📊 ICAO Rating Result")
         st.json(result)
+
 
