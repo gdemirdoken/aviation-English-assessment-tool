@@ -15,13 +15,6 @@ if audio_file is not None:
 
     if st.button("Run ICAO Assessment"):
         with st.spinner("Transcribing and evaluating..."):
-            # Step 1: Transcription using Whisper
-            transcript = openai.Audio.transcriptions.create(
-                model="whisper-1",
-                file=audio_file
-            )
-
-            transcription_text = transcript.text.strip()
 
             # Step 2: ICAO Rating Prompt
             rating_prompt = f"""
@@ -52,5 +45,6 @@ if audio_file is not None:
 
         st.subheader("📊 ICAO Rating Result")
         st.json(result)
+
 
 
