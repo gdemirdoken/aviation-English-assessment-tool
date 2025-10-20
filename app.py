@@ -3,7 +3,7 @@ import io
 import os
 import json
 from openai import OpenAI
-from openai.error import RateLimitError
+from openai.exceptions import RateLimitError
 
 # --- Initialize OpenAI client ---
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -92,3 +92,4 @@ if audio_file and st.button("Run ICAO Assessment"):
     except json.JSONDecodeError:
         # Fall back to raw output
         st.text(result_text)
+
