@@ -18,6 +18,13 @@ whisper_model = load_models()
 # Upload audio
 audio_file = st.file_uploader ("Upload the readback audio (WAV or MP3)", type=["wav", "mp3"])
 
+# Transcribe audio
+transcript = client.audio.transcriptions.create(
+    model="whisper-1",
+    file=audio_file
+)
+
+transcription_text = transcript.text.strip()
 # Expected readback reference (you can change this dynamically later)
 expected_text = st.text_input("Expected readback:", "QNH one zero one three, cleared for takeoff runway two four.")
 
@@ -63,4 +70,5 @@ if audio_file is not None:
 
         st.subheader("📊 ICAO Rating Result")
         st.json(result)
+
 
