@@ -2,8 +2,8 @@ import streamlit as st
 import tempfile
 import whisper
 from transformers import pipeline
+from openai import OpenAI
 
-# ---------------------
 # Load models
 # ---------------------
 st.title("✈️ ICAO Aviation English Proficiency Assessment")
@@ -71,6 +71,7 @@ if audio_file is not None:
 
         st.subheader("📊 ICAO Rating Result")
         st.json(result)
+
 
 
 
