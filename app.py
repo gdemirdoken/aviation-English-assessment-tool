@@ -1,5 +1,5 @@
 import streamlit as st
-import openai
+from openai import OpenAI
 import io
 
 openai.api_key = "YOUR_OPENAI_API_KEY"
@@ -55,3 +55,4 @@ if audio_file is not None:
 
         st.subheader("📊 ICAO Rating Result")
         st.json(result)
+
