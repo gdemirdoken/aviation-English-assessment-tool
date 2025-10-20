@@ -2,30 +2,30 @@ import streamlit as st
 import io
 import os
 import json
+import time
 from openai import OpenAI
 from openai.exceptions import RateLimitError
 
-# --- Initialize OpenAI client ---
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 st.title("🛫 ICAO English Proficiency Assessment Tool")
 st.write("Upload an audio recording to get ICAO English proficiency ratings.")
 
-# --- File upload ---
 audio_file = st.file_uploader("Upload audio file (WAV or MP3)", type=["wav", "mp3"])
 expected_text = st.text_input(
     "Expected readback:",
     "Wind 250 at 11 knots, cleared for takeoff runway 24L, Turkish 26G."
 )
 
-# --- Simple caching dictionary ---
-# Maps filename to transcription
-transcript_cache = {}
+# Persistent cache
+if "transcript_cache" not in st.session_state:
+    st.session_state["transcript_cache"] = {}
+
+transcript_cache = st.session_state["transcript_cache"]
 
 if audio_file and st.button("Run ICAO Assessment"):
     file_name = audio_file.name
 
-    # --- Step 1: Transcription (cache to avoid repeated calls) ---
     if file_name in transcript_cache:
         transcription_text = transcript_cache[file_name]
         st.info("Using cached transcription.")
@@ -34,7 +34,6 @@ if audio_file and st.button("Run ICAO Assessment"):
             audio_bytes = io.BytesIO(audio_file.read())
             audio_bytes.name = file_name
 
-            # Retry logic for Whisper
             for attempt in range(5):
                 try:
                     transcript = client.audio.transcriptions.create(
@@ -47,12 +46,15 @@ if audio_file and st.button("Run ICAO Assessment"):
                 except RateLimitError:
                     wait_time = 2 ** attempt
                     st.warning(f"Whisper rate limit reached. Waiting {wait_time}s...")
-                    st.sleep(wait_time)
+                    time.sleep(wait_time)
+            else:
+                st.error("Max retries reached for transcription.")
+                st.stop()
 
     st.subheader("🗒️ Transcription")
     st.write(transcription_text)
 
-    # --- Step 2: ICAO Scoring ---
+    # ICAO rating
     rating_prompt = f"""
     You are an ICAO-qualified English Language Proficiency rater assessing student pilots’ spoken performance.
     Apply the ICAO English Language Proficiency Rating Scale (Doc 9835) to evaluate the following readback.
@@ -69,7 +71,6 @@ if audio_file and st.button("Run ICAO Assessment"):
     Output structured JSON.
     """
 
-    # Retry logic for GPT
     for attempt in range(5):
         try:
             response = client.chat.completions.create(
@@ -81,15 +82,14 @@ if audio_file and st.button("Run ICAO Assessment"):
         except RateLimitError:
             wait_time = 2 ** attempt
             st.warning(f"GPT rate limit reached. Waiting {wait_time}s...")
-            st.sleep(wait_time)
+            time.sleep(wait_time)
+    else:
+        st.error("Max retries reached for ICAO scoring.")
+        result_text = "Error: Could not get ICAO rating due to rate limits."
 
-    # --- Display ICAO Ratings ---
     st.subheader("📊 ICAO Rating Result")
     try:
-        # Try to parse JSON if GPT returned structured output
         result_json = json.loads(result_text)
         st.json(result_json)
     except json.JSONDecodeError:
-        # Fall back to raw output
         st.text(result_text)
-
