@@ -3,7 +3,7 @@ import io
 import os
 import json
 import time
-from openai import OpenAI
+from openai import OpenAI  # SDK v2.5
 
 # --- Initialize OpenAI client ---
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -45,7 +45,7 @@ if audio_file and st.button("Run ICAO Assessment"):
                     transcription_text = transcript.text.strip()
                     transcript_cache[file_name] = transcription_text
                     break
-                except OpenAIError as e:
+                except Exception as e:
                     if "Rate limit" in str(e):
                         wait_time = 2 ** attempt
                         st.warning(f"Whisper rate limit reached. Waiting {wait_time}s...")
@@ -84,7 +84,7 @@ if audio_file and st.button("Run ICAO Assessment"):
             )
             result_text = response.choices[0].message.content
             break
-        except OpenAIError as e:
+        except Exception as e:
             if "Rate limit" in str(e):
                 wait_time = 2 ** attempt
                 st.warning(f"GPT rate limit reached. Waiting {wait_time}s...")
@@ -102,4 +102,3 @@ if audio_file and st.button("Run ICAO Assessment"):
         st.json(result_json)
     except json.JSONDecodeError:
         st.text(result_text)
-
