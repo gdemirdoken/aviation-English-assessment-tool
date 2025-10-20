@@ -8,6 +8,20 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 st.title("🛫 ICAO English Proficiency Assessment Tool")
 
+from openai.error import RateLimitError
+import time
+
+while True:
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": rating_prompt}]
+        )
+        break  # success
+    except RateLimitError:
+        st.warning("Rate limit reached. Waiting 5 seconds...")
+        time.sleep(5)
+
 audio_file = st.file_uploader("Upload audio file", type=["wav", "mp3"])
 expected_text = st.text_input("Expected readback:", "QNH one zero one three, cleared for takeoff runway two four.")
 
@@ -50,5 +64,6 @@ if audio_file and st.button("Run ICAO Assessment"):
 
     st.subheader("📊 ICAO Rating Result")
     st.json(result)
+
 
 
