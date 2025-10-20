@@ -1,6 +1,5 @@
 import streamlit as st
 from openai import OpenAI
-import io
 import os
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -53,4 +52,5 @@ if audio_file and st.button("Run ICAO Assessment"):
 
     st.subheader("📊 ICAO Rating Result")
     st.json(result)
+
 
