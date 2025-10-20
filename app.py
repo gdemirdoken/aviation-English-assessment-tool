@@ -9,7 +9,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 st.title("🛫 ICAO English Proficiency Assessment Tool")
 
 audio_file = st.file_uploader("Upload audio file", type=["wav", "mp3"])
-expected_text = st.text_input("Sample readback:", "QNH 1014, cleared for takeoff runway 24L, Turkish 26G.")
+expected_text = st.text_input("Sample readback:", "Wind 250 at 5 knots, cleared for takeoff runway 24L, Turkish 26G.")
 
 if audio_file and st.button("Run ICAO Assessment"):
     with st.spinner("Transcribing and evaluating..."):
@@ -50,6 +50,7 @@ if audio_file and st.button("Run ICAO Assessment"):
 
     st.subheader("📊 ICAO Rating Result")
     st.json(result)
+
 
 
 
