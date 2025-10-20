@@ -4,7 +4,6 @@ import os
 import json
 import time
 from openai import OpenAI
-from openai.error import OpenAIError  # Correct for v2.5
 
 # --- Initialize OpenAI client ---
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -103,3 +102,4 @@ if audio_file and st.button("Run ICAO Assessment"):
         st.json(result_json)
     except json.JSONDecodeError:
         st.text(result_text)
+
