@@ -8,22 +8,8 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 st.title("🛫 ICAO English Proficiency Assessment Tool")
 
-from openai.error import RateLimitError
-import time
-
-while True:
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": rating_prompt}]
-        )
-        break  # success
-    except RateLimitError:
-        st.warning("Rate limit reached. Waiting 5 seconds...")
-        time.sleep(5)
-
 audio_file = st.file_uploader("Upload audio file", type=["wav", "mp3"])
-expected_text = st.text_input("Expected readback:", "QNH one zero one three, cleared for takeoff runway two four.")
+expected_text = st.text_input("Sample readback:", "QNH 1014, cleared for takeoff runway 24L, Turkish 26G.")
 
 if audio_file and st.button("Run ICAO Assessment"):
     with st.spinner("Transcribing and evaluating..."):
@@ -40,7 +26,7 @@ if audio_file and st.button("Run ICAO Assessment"):
         You are an ICAO-qualified English Language Proficiency rater assessing student pilots’ spoken performance in aviation communication tasks.
         Apply the ICAO English Language Proficiency Rating Scale (Doc 9835) to evaluate the following readback.
 
-        EXPECTED READBACK:
+        SAMPLE READBACK:
         "{expected_text}"
 
         TRANSCRIBED READBACK:
