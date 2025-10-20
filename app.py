@@ -14,7 +14,7 @@ st.write("Upload an audio recording to get ICAO English proficiency ratings.")
 # --- File upload ---
 audio_file = st.file_uploader("Upload audio file (WAV or MP3)", type=["wav", "mp3"])
 expected_text = st.text_input(
-    "Expected readback:",
+    "Sample readback:",
     "Wind 250 at 11 knots, cleared for takeoff runway 24L, Turkish 26G."
 )
 
@@ -102,3 +102,4 @@ if audio_file and st.button("Run ICAO Assessment"):
         st.json(result_json)
     except json.JSONDecodeError:
         st.text(result_text)
+
