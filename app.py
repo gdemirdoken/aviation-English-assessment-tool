@@ -11,18 +11,12 @@ st.title("✈️ ICAO Aviation English Proficiency Assessment")
 @st.cache_resource
 def load_models():
     # Whisper for speech-to-text
-    whisper_model = whisper.load_model("base")  # You can choose "small", "medium", "large"
-    # Hugging Face pipeline for grammar correction
-    grammar_corrector = pipeline("text2text-generation", model="prithivida/grammar_error_correcter_v1")
-    return whisper_model, grammar_corrector
+    whisper_model = whisper.load_model("base")
 
 whisper_model = load_models()
 
-# ---------------------
-# File Upload
-# ---------------------
-st.subheader("Upload your speech recording:")
-audio_file = st.file_uploader("Upload a .wav file", type=["wav", "mp3", "m4a"])
+# Upload audio
+audio_file = st.file_uploader ("Upload the readback audio (WAV or MP3)", type=["wav", "mp3"])
 
 # Expected readback reference (you can change this dynamically later)
 expected_text = st.text_input("Expected readback:", "QNH one zero one three, cleared for takeoff runway two four.")
@@ -69,3 +63,4 @@ if audio_file is not None:
 
         st.subheader("📊 ICAO Rating Result")
         st.json(result)
+
