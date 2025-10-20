@@ -1,5 +1,8 @@
 import streamlit as st
+import openai
 import io
+
+openai.api_key = "YOUR_OPENAI_API_KEY"
 
 st.title("🛫 ICAO English Proficiency Assessment Tool")
 st.write("Upload a pilot readback recording to assess it against ICAO Language Proficiency Requirements.")
@@ -15,6 +18,13 @@ if audio_file is not None:
 
     if st.button("Run ICAO Assessment"):
         with st.spinner("Transcribing and evaluating..."):
+            # Step 1: Transcription using Whisper
+            transcript = openai.Audio.transcriptions.create(
+                model="whisper-1",
+                file=audio_file
+            )
+
+            transcription_text = transcript.text.strip()
 
             # Step 2: ICAO Rating Prompt
             rating_prompt = f"""
@@ -45,6 +55,3 @@ if audio_file is not None:
 
         st.subheader("📊 ICAO Rating Result")
         st.json(result)
-
-
-
