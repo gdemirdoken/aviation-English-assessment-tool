@@ -25,6 +25,7 @@ transcript = client.audio.transcriptions.create(
 )
 
 transcription_text = transcript.text.strip()
+
 # Expected readback reference (you can change this dynamically later)
 expected_text = st.text_input("Expected readback:", "QNH one zero one three, cleared for takeoff runway two four.")
 
@@ -70,5 +71,6 @@ if audio_file is not None:
 
         st.subheader("📊 ICAO Rating Result")
         st.json(result)
+
 
 
