@@ -6,7 +6,7 @@ from transformers import pipeline
 # ---------------------
 # Load models
 # ---------------------
-st.title("✈️ Aviation English Speaking Tutor (Offline)")
+st.title("✈️ ICAO Aviation English Proficiency Assessment")
 
 @st.cache_resource
 def load_models():
@@ -16,7 +16,7 @@ def load_models():
     grammar_corrector = pipeline("text2text-generation", model="prithivida/grammar_error_correcter_v1")
     return whisper_model, grammar_corrector
 
-whisper_model, grammar_corrector = load_models()
+whisper_model = load_models()
 
 # ---------------------
 # File Upload
@@ -24,37 +24,48 @@ whisper_model, grammar_corrector = load_models()
 st.subheader("Upload your speech recording:")
 audio_file = st.file_uploader("Upload a .wav file", type=["wav", "mp3", "m4a"])
 
+# Expected readback reference (you can change this dynamically later)
+expected_text = st.text_input("Expected readback:", "QNH one zero one three, cleared for takeoff runway two four.")
+
 if audio_file is not None:
-    # Save to temp file
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio:
-        temp_audio.write(audio_file.read())
-        temp_audio_path = temp_audio.name
+    st.audio(audio_file)
 
-    st.info("Transcribing audio locally... Please wait.")
-    
-    # Transcription
-    result = whisper_model.transcribe(temp_audio_path)
-    transcription = result["text"]
+    if st.button("Run ICAO Assessment"):
+        with st.spinner("Transcribing and evaluating..."):
+            # Step 1: Transcription using Whisper
+            transcript = openai.Audio.transcriptions.create(
+                model="whisper-1",
+                file=audio_file
+            )
 
-    st.success("✅ Transcription complete!")
-    st.write("### Your Transcription:")
-    st.write(transcription)
+            transcription_text = transcript.text.strip()
 
-    # ---------------------
-    # Grammar Feedback
-    # ---------------------
-    st.info("Analyzing grammar...")
-    corrected = grammar_corrector(f"grammar: {transcription}")
-    feedback = corrected[0]['generated_text']
+            # Step 2: ICAO Rating Prompt
+            rating_prompt = f"""
+            You are an ICAO-qualified English Language Proficiency rater assessing student pilots’ spoken performance in aviation communication tasks.
+            Apply the ICAO English Language Proficiency Rating Scale (Doc 9835) to evaluate the following readback.
 
-    st.write("### Feedback on Grammar:")
-    st.write(feedback)
+            EXPECTED READBACK:
+            "{expected_text}"
 
-    # ---------------------
-    # Pronunciation Feedback (Simple)
-    # ---------------------
-    st.write("### Pronunciation Feedback:")
-    if len(transcription.split()) < 3:
-        st.warning("Please provide a longer sample for better feedback.")
-    else:
-        st.write("✅ Clear speech detected. Focus on aviation phraseology for more accuracy.")
+            TRANSCRIBED READBACK:
+            "{transcription_text}"
+
+            Provide ratings (1–6) and comments for:
+            Pronunciation, Structure, Vocabulary, Fluency, Comprehension, and Interactions.
+            Conclude with an overall ICAO level and a short feedback paragraph.
+            Output structured JSON.
+            """
+
+            response = openai.Chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": rating_prompt}]
+            )
+
+            result = response.choices[0].message.content
+
+        st.subheader("🗒️ Transcription")
+        st.write(transcription_text)
+
+        st.subheader("📊 ICAO Rating Result")
+        st.json(result)
